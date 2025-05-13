@@ -10,27 +10,14 @@ const PORT = 8000;
 
 app.use(express.json());
 
+
 // GET all symptoms
-
-
-app.post('/symptoms', async (req, res) => {
-    try {
-      // If you are sending multiple symptoms in an array
-      const symptoms = await Symptom.insertMany(req.body);
-      console.log(symptoms); // Log the inserted symptoms for debugging
-      res.status(201).json(symptoms);
-    } catch (err) {
-      console.error(err); // Log any error for debugging
-      res.status(400).json({ error: err.message });
-    }
-  });
-
   app.get('/symptoms', async (req, res) => {
     try {
       const symptoms = await Symptom.find();
       res.status(200).json(symptoms);
     } catch (err) {
-      console.error(err); // Log any error for debugging
+      console.error(err); 
       res.status(400).json({ error: err.message });
     }
   });
@@ -48,15 +35,6 @@ app.get('/body', async (req, res) => {
     }
 });
 
-// GET all recommendations
-app.get('/recommendations', async (req, res) => {
-    try {
-        const recommendations = await Recommendation.find();
-        res.json(recommendations);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
 
 // POST a new result
 app.post('/results', async (req, res) => {
@@ -77,7 +55,8 @@ app.post('/results', async (req, res) => {
 });
 
 // Connect to MongoDB and start server
-mongoose.connect('mongodb+srv://Admin:qwdUtbbxfat7Jx1o@database.vopkyp9.mongodb.net/?retryWrites=true&w=majority&appName=Database')
+mongoose.connect('mongodb+srv://Admin:qwdUtbbxfat7Jx1o@database.vopkyp9.mongodb.net/relievio?retryWrites=true&w=majority&appName=Database')
+
 .then(() => {
     console.log('Connected to MongoDB');
     app.listen(PORT, () => {

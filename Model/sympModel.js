@@ -8,6 +8,7 @@ const symptomsSchema = mongoose.Schema({
         required: true, 
         unique: true 
     },
+    
 
 
 });
