@@ -1,58 +1,35 @@
-const express = require('express'); 
+const express = require('express');
 const mongoose = require('mongoose');
-const Symptom = require('./Model/sympModel.js');
-const Body = require('./Model/bodyModel.js');
-const Recommendation = require('./Model/recomModel.js');
-const Result = require('./Model/resultsModel.js');
+const cors = require('cors');
+require('dotenv').config();
+
+
+// Import routes
+const symptomsRouter = require('./Routes/symptoms.js');
+const bodyRouter = require('./Routes/body.js');
+const moodsRouter = require('./Routes/mood');
+const recommendationsRouter = require('./Routes/recommendations.js');
+const resultsRouter = require('./Routes/results.js');
+const userRouter = require('./Routes/user.js');
 
 const app = express();
 const PORT = 8000;
 
+app.use(cors()); // allow CORS for frontend requests
 app.use(express.json());
 
-
-// GET all symptoms
-  app.get('/symptoms', async (req, res) => {
-    try {
-      const symptoms = await Symptom.find();
-      res.status(200).json(symptoms);
-    } catch (err) {
-      console.error(err); 
-      res.status(400).json({ error: err.message });
-    }
+app.get('/', (req, res) => {
+    res.send('API is running');
   });
-  
-  
-  
 
-// GET all body parts
-app.get('/body', async (req, res) => {
-    try {
-        const bodyParts = await Body.find();
-        res.json(bodyParts);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
+// Use routes with prefixes
+app.use('/api/symptoms', symptomsRouter);
+app.use('/api/body', bodyRouter);
+app.use('/api/moods', moodsRouter);
+app.use('/api/recommendations', recommendationsRouter);
+app.use('/api/results', resultsRouter);
+app.use('/api/user', userRouter);
 
-
-// POST a new result
-app.post('/results', async (req, res) => {
-    try {
-        const { symptoms, bodyParts, recommendations } = req.body;
-
-        const result = new Result({
-            symptoms,
-            bodyParts,
-            recommendations
-        });
-
-        await result.save();
-        res.status(201).json(result);
-    } catch (err) {
-        res.status(400).json({ error: err.message });
-    }
-});
 
 // Connect to MongoDB and start server
 mongoose.connect('mongodb+srv://Admin:qwdUtbbxfat7Jx1o@database.vopkyp9.mongodb.net/relievio?retryWrites=true&w=majority&appName=Database')

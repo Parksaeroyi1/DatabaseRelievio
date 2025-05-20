@@ -2,12 +2,16 @@ const mongoose = require('mongoose');
 
 const recommendationsSchema = new mongoose.Schema({
   
-  title: { 
-
-  type: String, 
-  required: true },
-  
-  description: String
+  name: {
+         
+    type: String, 
+    required: true, 
+    unique: true 
+  },
+  videoUrl: {                
+    type: String,
+    required: false         
+  }
 
 });
 
