@@ -38,8 +38,7 @@ const userSchema = mongoose.Schema({
       done: { type: Boolean, default: false },
     }
   ],
-  
-
+  default: [], // <- This ensures planner defaults to empty array
 
 });
 
