@@ -1,0 +1,68 @@
+const express = require('express');
+const router = express.Router();
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const User = require('../Model/userModel');
+
+const JWT_SECRET = 'your-secret-key'; // Replace with a secure secret or load from env variables
+
+// Register
+router.post('/', async (req, res) => {
+  const { email, name, password } = req.body;
+
+  try {
+    const existingUser = await User.findOne({ email });
+    if (existingUser)
+      return res.status(400).json({ message: 'User already exists' });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = new User({ email, name, password: hashedPassword });
+    await newUser.save();
+
+    res.status(201).json({ message: 'User registered', userId: newUser._id });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err });
+  }
+});
+
+// Login
+router.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user)
+      return res.status(404).json({ message: 'User not found' });
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch)
+      return res.status(401).json({ message: 'Invalid credentials' });
+
+    // Create JWT token valid for 1 day
+    const token = jwt.sign(
+      { id: user._id, email: user.email, name: user.name },
+      JWT_SECRET,
+      { expiresIn: '1d' }
+    );
+
+    res.json({ message: 'Login successful', userId: user._id, token });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err });
+  }
+});
+
+// Check session (verify token)
+router.get('/check-session', (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return res.status(401).json({ loggedIn: false });
+
+  const token = authHeader.split(' ')[1];
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    res.json({ loggedIn: true, user: decoded });
+  } catch (err) {
+    res.status(401).json({ loggedIn: false });
+  }
+});
+
+module.exports = router;
