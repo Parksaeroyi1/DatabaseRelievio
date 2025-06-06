@@ -27,10 +27,10 @@ const userSchema = mongoose.Schema({
 
   streak: {
     type: Number,
-    default: 0,
+    default: 1,
   },
   lastLogin: {
-    type: Date,
+    type: String,
     default: null,
   },
   expoPushToken: {
