@@ -6,6 +6,8 @@ const User = require('../Models/userModel');
 const { sendNotification } = require('../utils/notificationService');
 
 
+  
+
 // Middleware to verify token and extract user ID
 
 router.use(verifyToken);
@@ -59,6 +61,52 @@ router.use(async (req, res, next) => {
     req.notification = notification;
     next();
 })
+
+// In your tracker routes file
+
+router.get('/stats/:userId', async (req, res) => {
+    try {
+      const userId = req.params.userId;
+  
+      // Get all tracker items for this user done within the last 7 days
+      const oneWeekAgo = new Date();
+      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+  
+      const stretchesDoneThisWeek = await Tracker.countDocuments({
+        userId,
+        done: true,
+        completedAt: { $gte: oneWeekAgo }
+      });
+  
+      // Calculate streak (number of consecutive days with done stretches)
+      // This logic depends on how you store your sessions; simplified example:
+      const sessions = await Tracker.find({ userId, done: true }).sort({ completedAt: -1 });
+  
+      let streak = 0;
+      let currentDate = new Date();
+      currentDate.setHours(0,0,0,0);
+  
+      for (let session of sessions) {
+        const sessionDate = new Date(session.completedAt);
+        sessionDate.setHours(0,0,0,0);
+  
+        const diffDays = Math.floor((currentDate - sessionDate) / (1000 * 60 * 60 * 24));
+  
+        if (diffDays === streak) {
+          streak += 1;
+        } else if (diffDays > streak) {
+          break; // streak broken
+        }
+      }
+  
+      res.json({ stretchesDoneThisWeek, streak });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Server error fetching stats' });
+    }
+  });
+  
+
 
 
 

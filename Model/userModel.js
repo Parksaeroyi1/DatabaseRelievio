@@ -25,10 +25,17 @@ const userSchema = mongoose.Schema({
   
   },
 
-  profilePicture: {
-
+  streak: {
+    type: Number,
+    default: 0,
+  },
+  lastLogin: {
+    type: Date,
+    default: null,
+  },
+  expoPushToken: {
     type: String,
-
+    default: null,
   },
 
   planner: [

@@ -3,8 +3,10 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../Model/userModel');
+const authenticate = require('../middleware'); // Middleware to protect routes
+require('dotenv').config();
 
-const JWT_SECRET = 'your-secret-key'; // Replace with a secure secret or load from env variables
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'; // Use env variable
 
 // Register
 router.post('/', async (req, res) => {
@@ -38,7 +40,6 @@ router.post('/login', async (req, res) => {
     if (!isMatch)
       return res.status(401).json({ message: 'Invalid credentials' });
 
-    // Create JWT token valid for 1 day
     const token = jwt.sign(
       { id: user._id, email: user.email, name: user.name },
       JWT_SECRET,
@@ -62,6 +63,47 @@ router.get('/check-session', (req, res) => {
     res.json({ loggedIn: true, user: decoded });
   } catch (err) {
     res.status(401).json({ loggedIn: false });
+  }
+});
+
+// Logout (no-op for JWT)
+router.post('/logout', authenticate, (req, res) => {
+  res.status(200).json({ message: 'User logged out successfully' });
+});
+
+// Get profile (protected)
+router.get('/profile', authenticate, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('-password');
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Update profile (protected)
+router.put('/profile', authenticate, async (req, res) => {
+  const { name, email } = req.body;
+
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    user.name = name || user.name;
+    user.email = email || user.email;
+    const updatedUser = await user.save();
+
+    res.json({
+      message: 'Profile updated',
+      user: {
+        id: updatedUser._id,
+        name: updatedUser.name,
+        email: updatedUser.email
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
   }
 });
 

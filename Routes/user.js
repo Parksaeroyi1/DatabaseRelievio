@@ -22,15 +22,40 @@ router.get('/email/:email/planner', async (req, res) => {
 });
 
 
-router.get('/:id', async (req, res) => {
+router.patch('/id/:id', async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
+    const userId = req.params.id;
+    const { name, email, password, currentPassword } = req.body;
+
+    const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: 'User not found' });
-    res.json({ name: user.name, email: user.email, planner: user.planner });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+
+    if (name) user.name = name;
+    if (email) user.email = email;
+
+    if (password) {
+      if (!currentPassword) {
+        return res.status(400).json({ message: 'Current password is required to change password' });
+      }
+
+      const isMatch = await bcrypt.compare(currentPassword, user.password);
+      if (!isMatch) {
+        return res.status(400).json({ message: 'Current password is incorrect' });
+      }
+
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(password, salt);
+    }
+
+    await user.save();
+    res.status(200).json({ message: 'User profile updated successfully' });
+} catch (error) {
+    console.error('PATCH /id/:id error:', error); // ← this line is important
+    res.status(500).json({ message: 'Server error', error });
   }
 });
+
+
 
 router.post('/', async (req, res) => {
   const { email, name, planner } = req.body;
