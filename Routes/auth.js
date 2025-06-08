@@ -3,10 +3,10 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../Model/userModel');
-const authenticate = require('../middleware'); // Middleware to protect routes
+const authenticate = require('../middleware'); 
 require('dotenv').config();
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'; // Use env variable
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'; 
 
 // Register
 router.post('/', async (req, res) => {
