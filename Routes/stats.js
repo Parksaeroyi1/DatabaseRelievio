@@ -3,7 +3,6 @@ const router = express.Router();
 const Stats = require('../Models/statsModel');
 const verifyToken = require('../middleware/auth'); // fix destructure
 
-// 🟢 Public Route - No Auth
 router.get('/email/:email', async (req, res) => {
   const { email } = req.params;
   try {
