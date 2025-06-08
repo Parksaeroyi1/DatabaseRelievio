@@ -5,24 +5,24 @@ const statsSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'User', 
     required: true,
-    unique: true // Each user has only one stats record
+    unique: true 
   },
   dailyStreak: { 
     type: Number, 
     default: 0 
-  }, // Current consecutive days of activity
+  }, 
   weeklyCount: { 
     type: Number, 
     default: 0 
-  }, // Stretches completed this week
+  }, 
   lastActivityDate: { 
     type: Date, 
     default: null 
-  }, // Last day user completed a stretch
+  }, 
   totalCompleted: { 
     type: Number, 
     default: 0 
-  }, // Total stretches completed ever
+  }, 
   createdAt: { 
     type: Date, 
     default: Date.now 
