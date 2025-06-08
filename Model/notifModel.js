@@ -16,7 +16,7 @@ const notificationSchema = new mongoose.Schema({
     },
     daysOfWeek: {
         type: [Number],
-        default: [1, 2, 3, 4, 5] // Default to Mon-Fri
+        default: [1, 2, 3, 4, 5] 
     }
     }, { timestamps: true });
 
